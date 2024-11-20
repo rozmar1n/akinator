@@ -2,3 +2,5 @@
 Stack
 *.o
 akinator
+bin_tree/Tree
+dump/

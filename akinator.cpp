@@ -318,6 +318,26 @@ int MakeWayStack(node* root, const char* word, Stack_t* way)
     }
 }
 
+void PrintDef(Stack_t *way, double *characteristic_way, node* root)
+{
+     while(*characteristic_way)
+    {
+
+        if ((int)(*characteristic_way) == right_way)
+        {       
+            printf("%s, ", (char*)(root->data)); 
+            root = root->child_right;
+        }
+        if ((int)(*characteristic_way) == left_way)
+        {
+            printf("НЕ %s, ", (char*)(root->data)); 
+            root = root->child_left;
+        }
+        StackPop(way, characteristic_way);
+    }
+    printf("\n");
+}
+
 void GiveWordDefinition(node* root, const char* word)
 {
     Stack_t way;
@@ -326,32 +346,60 @@ void GiveWordDefinition(node* root, const char* word)
     MakeWayStack(root, word, &way);
     
 
-    double left_right = 1;
-    StackPop(&way, &left_right);
-    if ((int)left_right == 0)
+    double characteristic_way = 0;
+    StackPop(&way, &characteristic_way);
+    if ((int)characteristic_way == 0)
     {
-        fprintf(stderr, "Такого слова нет в акиноторе\n");
+        fprintf(stderr, "This word is missing\n");
         return;
     }
-    while(left_right)
-    {
-
-        if ((int)left_right == right_way)
-        {       
-            fprintf(stderr, "%s\n", (char*)(root->data)); 
-            root = root->child_right;
-        }
-        if ((int)left_right == left_way)
-        {
-            fprintf(stderr, "НЕ %s\n", (char*)(root->data)); 
-            root = root->child_left;
-        }
-        StackPop(&way, &left_right);
-    }
+    PrintDef(&way, &characteristic_way, root);
     StackDtor(&way);
 }
 
-// void GiveTheDifference(node* root, const char* word_1, const char* word_2)
-// {
+void GiveTheDifference(node* root, const char* word_1, const char* word_2)
+{
+    Stack_t way_1, way_2;
+    StackCtor(&way_1, 0);
+    StackCtor(&way_2, 0);
+    
+    double characteristic_1 = 0,
+           characteristic_2 = 0;
 
-// }
+    MakeWayStack(root, word_1, &way_1);
+    MakeWayStack(root, word_2, &way_2);
+
+    StackPop(&way_1, &characteristic_1);
+    
+    if ((int)characteristic_1 == 0)
+    {
+        printf("First word is missing\n");
+        return;
+    }
+    
+    StackPop(&way_2, &characteristic_2);
+    if ((int)characteristic_2 == 0)
+    {
+        printf("Second word is missing\n");
+        return;
+    }
+
+    while ((int)characteristic_1 == (int)characteristic_2)
+    {
+        if ((int)(characteristic_1) == left_way)
+            root = root->child_left;
+
+        if ((int)(characteristic_1) == right_way)
+            root = root->child_right;
+
+        StackPop(&way_1, &characteristic_1);
+        StackPop(&way_2, &characteristic_2); 
+    }
+    printf("%s differs from %s in that the first is: ", word_1, word_2);
+    PrintDef(&way_1, &characteristic_1, root);
+    printf("and the second is: ");
+    PrintDef(&way_2, &characteristic_2, root);
+
+    StackDtor(&way_1);
+    StackDtor(&way_2);
+}
